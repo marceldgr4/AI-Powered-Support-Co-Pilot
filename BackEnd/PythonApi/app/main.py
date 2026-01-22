@@ -2,11 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes.tickets import router as ticket_router
 from app.core.logging import setup_logging
+import logging
 
 setup_logging()
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="AI Support Co-Pilot API",
+    description="Microservicio de procesamiento de tickets con IA",
     version="1.0.0"
 )
 
@@ -18,8 +21,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(ticket_router, prefix="/tickets")
+app.include_router(ticket_router, tags=["tickets"])
 
 @app.get("/")
-def root():
-    return {"status": "online"}
+async def root():
+    """Endpoint de salud para verificar que el servicio está en línea."""
+    return {"status": "online",
+            "service": "AI Support Co-Pilot API",
+            "version": "1.0.0"}
+
+@app.get("/health")
+async def health_check():
+    """Verificar el estado del servicio."""
+    try: 
+        from app.SupaBase.supabase import supabase
+        supabase.table("tickets").select("id").limit(1).execute()
+
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "ai_model": "ready"
+            }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "error": str(e)
+            }
+    
+    if __name__ == "__main__":
+        import uvicorn
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+    
