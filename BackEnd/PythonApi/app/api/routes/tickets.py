@@ -2,12 +2,12 @@ from fastapi import APIRouter, HTTPException
 from app.models.ticket import TicketRequest, TicketResponse
 from app.services.ticket_service import process_ticket
 import logging
+
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/process-ticket", response_model=TicketResponse)
 async def process_ticket_endpoint(request: TicketRequest):
-
     """Endpoint para procesar un ticket con IA.
     
     Args:
@@ -15,10 +15,16 @@ async def process_ticket_endpoint(request: TicketRequest):
         
     Returns:
         TicketResponse con el resultado del procesamiento
+        
+    Raises:
+        HTTPException: 400 si datos inválidos, 404 si ticket no existe, 500 error interno
     """
+    
+    if not request.description.strip():
+        logger.warning("Request con descripción vacía")
+        raise HTTPException(status_code=400, detail="La descripción no puede estar vacía")
 
     try:
-
         logger.info(f"Processing ticket ID: {request.ticket_id}")
 
         analysis = process_ticket(
@@ -35,10 +41,10 @@ async def process_ticket_endpoint(request: TicketRequest):
         )
 
     except ValueError as e:
-        logger.error(f"Error processing ticket ID {str(e)}")
+        logger.error(f"Error procesando ticket {request.ticket_id}: {str(e)}")
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        logger.error(f"Unexpected error processing ticket ID {str(e)}", exc_info=True)
+        logger.error(f"Error inesperado procesando ticket {request.ticket_id}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, 
-                            detail=f"Error interno del servidor: {str(e)}"
+                            detail="Error interno del servidor"
                             )
