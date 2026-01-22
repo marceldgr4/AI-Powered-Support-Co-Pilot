@@ -1,11 +1,14 @@
-
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Supabase URL or Anon Key is not defined in environment variables');
-    }
-    
+  console.error('Environment variables:', {
+    VITE_SUPABASE_URL: supabaseUrl,
+    VITE_SUPABASE_ANON_KEY: supabaseAnonKey ? '***EXISTS***' : 'MISSING'
+  });
+  throw new Error('Supabase URL or Anon Key is not defined in environment variables');
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
