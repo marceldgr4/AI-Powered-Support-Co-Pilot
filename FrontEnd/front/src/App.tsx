@@ -11,7 +11,6 @@ import { useNotification } from './hooks/useNotifications'
 type FilterType = 'all' | 'processed' | 'pending'
 
 function App() {
-  
   const { tickets, stats, loading, reload } = useTickets()
   
   const { notification, showNotification, hideNotification } = useNotification()
@@ -19,6 +18,7 @@ function App() {
   const [selectedSentiment, setSelectedSentiment] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [showNewTicketModal, setShowNewTicketModal] = useState(false)
+  const [isDark, setIsDark] = useState(false)
 
   // Filtrado en cliente (los datos ya vienen de Supabase)
   const filteredTickets = tickets.filter(ticket => {
@@ -46,7 +46,6 @@ function App() {
   }
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {notification && (
         <Notification
@@ -56,7 +55,11 @@ function App() {
         />
       )}
 
-      <Header onNewTicket={() => setShowNewTicketModal(true)} />
+      <Header 
+        onNewTicket={() => setShowNewTicketModal(true)}
+        isDark={isDark}
+        onToggleDark={() => setIsDark(!isDark)}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <StatsGrid 
@@ -74,7 +77,6 @@ function App() {
           onSearchChange={setSearchTerm}
         />
 
-        
         <TicketList 
           tickets={filteredTickets} 
           loading={loading} 
