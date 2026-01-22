@@ -79,9 +79,9 @@ export const useTickets = () => {
             total: tickets.length,
             processed: tickets.filter(t => t.processed).length,
             pending: tickets.filter(t => !t.processed).length,
-            positivo: tickets.filter(t => t.sentiment === 'positive').length,
-            neutral: tickets.filter(t => t.sentiment === 'neutral').length,
-            negativo: tickets.filter(t => t.sentiment === 'negative').length,
+            positivo: tickets.filter(t => t.sentiment === 'Positivo').length,
+            neutral: tickets.filter(t => t.sentiment === 'Neutral').length,
+            negativo: tickets.filter(t => t.sentiment === 'Negativo').length,
         }
         setStats(newStats)
     }, [tickets])
