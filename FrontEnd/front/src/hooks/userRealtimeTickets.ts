@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { supabase } from "../api/supabase";
-import { Ticket } from "../type/tickes";
+import type { Ticket } from "../types/tickets";
 
 export function useUserRealtimeTickets(setTickets: React.Dispatch<React.SetStateAction<Ticket[]>>) {
     useEffect(() => {
