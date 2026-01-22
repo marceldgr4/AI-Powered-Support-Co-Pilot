@@ -1,6 +1,6 @@
 import type { Ticket } from '../../types/tickets'
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale/'
+import { es } from 'date-fns/locale/es'
 
 interface TicketListProps {
   tickets: Ticket[]
