@@ -1,4 +1,4 @@
-import type { Stats } from '../../type/tickes'
+import type { Stats } from '../../types/tickets';
 
 interface StatsGridProps {
   stats: Stats
@@ -11,27 +11,33 @@ export function StatsGrid({ stats, selectedSentiment, onSelectSentiment }: Stats
     title, 
     value, 
     color, 
-    onClick, 
-    isActive 
+    sentimentValue,
+    bgColor = 'bg-white'
   }: { 
     title: string
     value: number
     color: string
-    onClick: () => void
-    isActive: boolean
-  }) => (
-    <button
-      onClick={onClick}
-      className={`p-6 rounded-xl text-left transition-all transform hover:scale-105 cursor-pointer ${
-        isActive 
-          ? `${color} text-white shadow-lg` 
-          : 'bg-white text-slate-900 shadow-sm border border-slate-200'
-      }`}
-    >
-      <p className="text-sm font-medium opacity-90">{title}</p>
-      <p className={`text-3xl font-bold mt-2`}>{value}</p>
-    </button>
-  )
+    sentimentValue: string | null
+    bgColor?: string
+  }) => {
+    const isActive = selectedSentiment === sentimentValue;
+    
+    return (
+      <button
+        onClick={() => onSelectSentiment(sentimentValue)}
+        className={`p-6 rounded-xl text-left transition-all transform hover:scale-105 cursor-pointer ${
+          isActive 
+            ? `${color} text-white shadow-lg` 
+            : `${bgColor} text-slate-900 shadow-sm border border-slate-200`
+        }`}
+      >
+        <p className={`text-sm font-medium ${isActive ? 'opacity-90' : 'text-slate-600'}`}>
+          {title}
+        </p>
+        <p className="text-3xl font-bold mt-2">{value}</p>
+      </button>
+    )
+  }
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -39,43 +45,37 @@ export function StatsGrid({ stats, selectedSentiment, onSelectSentiment }: Stats
         title="Total" 
         value={stats.total} 
         color="bg-slate-900"
-        onClick={() => onSelectSentiment(null)}
-        isActive={selectedSentiment === null}
+        sentimentValue={null}
       />
       <StatCard 
         title="Procesados" 
-        value={stats.process} 
-        color="bg-green-500"
-        onClick={() => onSelectSentiment('processed')}
-        isActive={selectedSentiment === 'processed'}
+        value={stats.processed} 
+        color="bg-blue-600"
+        sentimentValue="processed"
       />
       <StatCard 
         title="Pendientes" 
         value={stats.pending} 
-        color="bg-amber-500"
-        onClick={() => onSelectSentiment('pending')}
-        isActive={selectedSentiment === 'pending'}
+        color="bg-amber-600"
+        sentimentValue="pending"
       />
       <StatCard 
         title="Positivos" 
-        value={stats.posetivo} 
-        color="bg-emerald-500"
-        onClick={() => onSelectSentiment('positive')}
-        isActive={selectedSentiment === 'positive'}
+        value={stats.positivo} 
+        color="bg-green-600"
+        sentimentValue="Positivo"
       />
       <StatCard 
         title="Neutrales" 
         value={stats.neutral} 
-        color="bg-blue-500"
-        onClick={() => onSelectSentiment('neutral')}
-        isActive={selectedSentiment === 'neutral'}
+        color="bg-gray-600"
+        sentimentValue="Neutral"
       />
       <StatCard 
         title="Negativos" 
         value={stats.negativo} 
-        color="bg-red-500"
-        onClick={() => onSelectSentiment('negative')}
-        isActive={selectedSentiment === 'negative'}
+        color="bg-red-600"
+        sentimentValue="Negativo"
       />
     </div>
   )

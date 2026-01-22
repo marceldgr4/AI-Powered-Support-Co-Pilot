@@ -1,4 +1,6 @@
-import type { Ticket } from '../../type/tickes'
+import type { Ticket } from '../../types/tickets'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale/es'
 
 interface TicketListProps {
   tickets: Ticket[]
@@ -6,6 +8,37 @@ interface TicketListProps {
 }
 
 export function TicketList({ tickets, loading }: TicketListProps) {
+  
+  const getSentimentIcon = (sentiment: string | null) => {
+    if (!sentiment) return ;
+    switch (sentiment) {
+      case 'Positivo': return '✓'
+      case 'Neutral': return '○'
+      case 'Negativo': return '✕'
+      default: return '?'
+    }
+  }
+
+  const getSentimentColor = (sentiment: string | null) => {
+    if (!sentiment) return 'bg-amber-100 text-amber-800 border-amber-200';
+    switch (sentiment) {
+      case 'Positivo': return 'bg-green-100 text-green-800 border-green-200'
+      case 'Neutral': return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'Negativo': return 'bg-red-100 text-red-800 border-red-200'
+      default: return 'bg-amber-100 text-amber-800 border-amber-200'
+    }
+  }
+
+  const getCategoryColor = (category: string | null) => {
+    if (!category) return 'bg-gray-100 text-gray-800 border-gray-200';
+    switch (category) {
+      case 'Técnico': return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'Facturación': return 'bg-purple-100 text-purple-800 border-purple-200'
+      case 'Comercial': return 'bg-indigo-100 text-indigo-800 border-indigo-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl p-12 shadow-sm border border-slate-200 text-center">
@@ -29,44 +62,24 @@ export function TicketList({ tickets, loading }: TicketListProps) {
         <div
           key={ticket.id}
           className={`bg-white rounded-xl p-6 shadow-sm border-2 transition-all hover:shadow-md ${
-            ticket.sentiment === 'negative'
+            ticket.sentiment === 'Negativo'
               ? 'border-red-300 bg-red-50/30'
               : 'border-slate-200'
           }`}
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
+              {/* Header */}
               <div className="flex items-center gap-3 mb-3">
-                <span className={`w-3 h-3 rounded-full ${
-                  ticket.sentiment === 'positive' ? 'bg-green-500' :
-                  ticket.sentiment === 'neutral' ? 'bg-blue-500' :
-                  'bg-red-500'
-                }`}></span>
-                <h3 className="font-semibold text-slate-900">{ticket.title}</h3>
-              </div>
-              <p className="text-slate-600 text-sm mb-2">{ticket.description}</p>
-              <div className="flex gap-2 text-xs">
-                <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded">
-                  {ticket.sentiment}
+                <span className="text-2xl">
+                  {getSentimentIcon(ticket.sentiment)}
                 </span>
-                <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                  {ticket.status}
+                <span className="text-xs text-slate-500">
+                  {formatDistanceToNow(new Date(ticket.created_at), {
+                    addSuffix: true,
+                    locale: es
+                  })}
                 </span>
-                <span className={`px-2 py-1 rounded ${
-                  ticket.processed 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-amber-100 text-amber-700'
-                }`}>
-                  {ticket.processed ? 'Procesado' : 'Pendiente'}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
                 {!ticket.processed && (
                   <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full border border-amber-200">
                     Procesando...
@@ -83,7 +96,6 @@ export function TicketList({ tickets, loading }: TicketListProps) {
               <div className="flex items-center gap-2">
                 {ticket.category && (
                   <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium border ${getCategoryColor(ticket.category)}`}>
-                    {getCategoryIcon(ticket.category)}
                     {ticket.category}
                   </span>
                 )}
