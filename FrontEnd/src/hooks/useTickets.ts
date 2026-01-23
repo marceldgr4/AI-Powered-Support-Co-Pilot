@@ -90,6 +90,7 @@ export const useTickets = () => {
         tickets,
         loading,
         stats,
-        reload: loadTickets
+        reload: loadTickets,
+        setTickets
     }
 }
