@@ -20,7 +20,7 @@ app.add_middleware(
         "http://localhost:5173",
         "https://ai-powered-support-co-pilot.vercel.app"  
     ],
-    allow_origins=["*"],
+   
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
