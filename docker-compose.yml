@@ -3,7 +3,7 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./BackEnd
+      context: ./BackEnd/TicketProcessorService
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
@@ -15,7 +15,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PORT=8000
     volumes:
-      - ./BackEnd/PythonApi/app:/app/app
+      - ./BackEnd/TicketProcessorService/app:/app/app
 
   frontend:
     image: node:20-alpine

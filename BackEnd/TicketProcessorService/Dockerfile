@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY PythonApi/app ./app
+COPY app ./app
 
 ENV PYTHONUNBUFFERED=1
 
