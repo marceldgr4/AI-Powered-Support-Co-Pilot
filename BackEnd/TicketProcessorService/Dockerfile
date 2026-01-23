@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copiar requirements primero para aprovechar cache de Docker
 # Copiar todo el contenido del servicio
-COPY . .
+COPY requirements.txt
 
 # Instalar dependencias
 RUN pip install --no-cache-dir -r requirements.txt
@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONUNBUFFERED=1
 
 # Railway proporciona la variable $PORT automáticamente
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:}
