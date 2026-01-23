@@ -7,11 +7,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar requirements primero para aprovechar cache de Docker
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copiar todo el contenido del servicio
+COPY . .
 
-# Copiar el código de la aplicación
-COPY ./app ./app
+# Instalar dependencias
+RUN pip install --no-cache-dir -r requirements.txt
 
 ENV PYTHONUNBUFFERED=1
 
