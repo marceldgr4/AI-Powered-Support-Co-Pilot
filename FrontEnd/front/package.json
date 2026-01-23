@@ -1,25 +1,24 @@
 {
-  "name": "front",
+  "name": "ai-support-copilot-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "build": "tsc && vite build",
+    "lint": "eslint . --max-warnings=0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.91.0",
     "date-fns": "^3.6.0",
+    "lucide-react": "^0.468.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "lucide-react": "^0.468.0"
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@tailwindcss/forms": "^0.5.7",
-    "@types/date-fns": "^2.5.3",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
@@ -34,5 +33,9 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }
