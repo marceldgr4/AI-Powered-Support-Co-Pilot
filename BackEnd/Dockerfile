@@ -6,10 +6,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+# requirements
+COPY BackEnd/requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app ./app
+# app
+COPY BackEnd/PythonApi/app ./app
 
 ENV PORT=8000
 ENV PYTHONUNBUFFERED=1
