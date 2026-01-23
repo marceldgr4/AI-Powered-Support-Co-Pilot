@@ -31,16 +31,30 @@ function App() {
 
   const handleCreateTicket = async (description: string) => {
     try {
-      const response = await fetch('/api/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description })
-      })
-      if (!response.ok) throw new Error('Failed to create ticket')
-      await reload()
+      // Insert ticket directly into Supabase
+      const { error } = await supabase
+        .from('tickets')
+        .insert([
+          {
+            description,
+            processed: false,
+            category: null,
+            sentiment: null
+          }
+        ])
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // The n8n workflow will automatically process this ticket via Supabase trigger
       setShowNewTicketModal(false)
       showNotification('Ticket creado exitosamente. Procesando con IA...', 'success')
+      
+      // Reload is not strictly necessary due to realtime subscription, but good for reliability
+      await reload()
     } catch (error) {
+      console.error('Error creating ticket:', error)
       showNotification('Error al crear el ticket', 'error')
     }
   }
