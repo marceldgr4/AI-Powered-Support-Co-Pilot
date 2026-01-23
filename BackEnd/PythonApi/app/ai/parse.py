@@ -1,4 +1,4 @@
-from langchain_core.output_parsers import StrOutputParser
+from langchain_core.output_parsers import PydanticOutputParser
 from app.models.ticket import TicketAnalysis
 
 def get_ticket_analysis_parser() -> PydanticOutputParser:

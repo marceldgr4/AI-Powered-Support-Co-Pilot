@@ -39,7 +39,7 @@ async def root():
 async def health_check():
     """Verificar el estado del servicio."""
     try: 
-        from app.SupaBase.supabase import supabase
+        from app.supabase.supabase import supabase
         supabase.table("tickets").select("id").limit(1).execute()
 
         return {

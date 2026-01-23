@@ -1,5 +1,5 @@
 from langchain_core.output_parsers import PydanticOutputParser
-from app.SupaBase.supabase import get_ticket, update_ticket
+from app.supabase.supabase import get_ticket, update_ticket
 from app.ai.llm import llm
 from app.ai.prompts import ANALYSIS_PROMPT
 from app.models.ticket import TicketAnalysis
