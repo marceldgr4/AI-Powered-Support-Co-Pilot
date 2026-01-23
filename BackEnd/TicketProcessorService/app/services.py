@@ -49,7 +49,7 @@ async def analyze_ticket_logic(description: str) -> TicketAnalysis:
     """Analyzes the ticket description using LLM."""
     try:
         logger.info("Calling LLM for analysis...")
-        return chain.invoke({"description": description})
+        return await chain.ainvoke({"description": description})
     except AuthenticationError as auth_err:
         logger.error(f"OpenAI Authentication Error: {auth_err}")
         raise ValueError("Invalid OpenAI API Key. Please check configuration.") from auth_err
