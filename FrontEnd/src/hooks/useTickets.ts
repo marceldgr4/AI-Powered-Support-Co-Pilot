@@ -86,11 +86,27 @@ export const useTickets = () => {
         setStats(newStats)
     }, [tickets])
 
+
+    const createTicket = async (description: string) => {
+        try {
+            const { error } = await supabase
+                .from('tickets')
+                .insert([{ description, processed: false }])
+                .select()
+            
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error creating ticket:", error);
+            throw error;
+        }
+    }
+
     return {
         tickets,
         loading,
         stats,
         reload: loadTickets,
-        setTickets
+        setTickets,
+        createTicket
     }
 }
