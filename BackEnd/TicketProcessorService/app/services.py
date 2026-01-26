@@ -3,10 +3,11 @@ import json
 from openai import AuthenticationError, OpenAIError
 from supabase import create_client, Client
 from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 
-from app.config import SUPABASE_URL, SUPABASE_KEY, OPENAI_API_KEY
+from app.config import SUPABASE_URL, SUPABASE_KEY, OPENAI_API_KEY, GROQ_API_KEY
 from app.models import TicketAnalysis
 
 logger = logging.getLogger(__name__)
@@ -38,7 +39,13 @@ Return only the valid JSON.
         partial_variables={"format_instructions": parser.get_format_instructions()},
     )
     
-    llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo", openai_api_key=OPENAI_API_KEY)
+    if GROQ_API_KEY:
+        logger.info("Using Groq as LLM provider (Free Tier)")
+        llm = ChatGroq(temperature=0, model_name="llama-3.3-70b-versatile", groq_api_key=GROQ_API_KEY)
+    else:
+        logger.info("Using OpenAI as LLM provider")
+        llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo", openai_api_key=OPENAI_API_KEY)
+        
     chain = prompt | llm | parser
 
 except Exception as e:
