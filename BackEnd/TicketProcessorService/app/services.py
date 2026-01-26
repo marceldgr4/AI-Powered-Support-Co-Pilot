@@ -88,4 +88,5 @@ async def process_ticket_service(ticket_id: str, description: str) -> TicketAnal
     # 2. Update DB
     await update_ticket_record(ticket_id, analysis)
     
+    analysis.id = ticket_id
     return analysis

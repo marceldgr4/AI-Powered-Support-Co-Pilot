@@ -1,0 +1,343 @@
+{
+  "name": "AI Support Co-Pilot - Production Ready",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "*/2 * * * *"
+            }
+          ]
+        }
+      },
+      "id": "1de44761-8a22-4545-b7bf-aca6461670c4",
+      "name": "Every 2 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -4000,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "tickets"
+      },
+      "id": "27de5432-b2d0-441d-b409-3f3be854cb9f",
+      "name": "Get Pending Tickets",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -3776,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MTUFWQDh8MI8Mwfl",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.length }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "19b6c6db-a7c4-4b28-b0cf-e0f744514856",
+      "name": "Check If Tickets Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -3568,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "bb535a89-0122-4363-bf8e-a06820e8958f",
+      "name": "Loop Through Tickets",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -3344,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ \"https://ai-powered-support-co-pilot-production-522b.up.railway.app/process-ticket\" }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"ticket_id\": \"={{ $json.id }}\",\n  \"description\": \"={{ $json.description }}\"\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "a85663c1-a790-4f15-acc4-038f45bb765a",
+      "name": "Process with AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3120,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "from datetime import datetime\n\n# Obtener los datos del ticket original y combinarlos con la IA\nticket_data = _$('Loop Through Tickets').item.json\n\nfor item in _items:\n    ai_data = item[\"json\"]\n    merged_data = {**ticket_data, **ai_data}\n    merged_data[\"processed_at\"] = datetime.utcnow().isoformat() + \"Z\"\n    item[\"json\"] = merged_data\n\nreturn _items"
+      },
+      "id": "3cb030a3-244c-49dc-9494-6a73794794d8",
+      "name": "Merge Ticket + AI Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2896,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.sentiment }}",
+              "operation": "equals",
+              "value2": "Negativo"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b9ba28ac-6162-4c2a-8f72-fc3197597785",
+      "name": "Is Negative Sentiment?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -2688,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@aicopilot.com",
+        "toEmail": "support-alerts@aicopilot.com",
+        "subject": "=🚨 ALERTA: Ticket Negativo #{{ $json.id.slice(0, 8) }}",
+        "options": {}
+      },
+      "id": "1401f1c5-0e9b-4434-8d36-ab930fabad33",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -2464,
+        0
+      ],
+      "webhookId": "2fdb4d63-4f58-4704-a2a4-cf827cf8fdf1",
+      "credentials": {
+        "smtp": {
+          "id": "XElyKxuG7bngOMBy",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C07VAEXAMPLE",
+          "mode": "list",
+          "cachedResultName": "#alerts"
+        },
+        "text": "=🚨 *Ticket Negativo Detectado* 🚨\n\n*ID:* `{{ $json.id.slice(0, 8) }}`\n*Categoría:* {{ $json.category }}\n*Sentimiento:* ❌ {{ $json.sentiment }}\n*Creado:* {{ $json.created_at }}\n\n*Descripción del Cliente:*\n> {{ $json.description }}\n\n*Análisis de IA:*\n> {{ $json.reasoning }}\n\n<https://aipoweredsupport-co-pilot-2a3s.vercel.app|Ver en Dashboard>",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "3b4a42ed-f455-463a-aca9-b8f3a680aee8",
+      "name": "Send Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -2464,
+        208
+      ],
+      "webhookId": "d55862d7-d6b4-41c2-9c0d-89232db17f71",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "b03266b9-eac8-429b-b76e-3e5961c1d785",
+      "name": "Wait 1 Second",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2896,
+        304
+      ],
+      "webhookId": "{{ WEBHOOK_ID }}"
+    },
+    {
+      "parameters": {},
+      "id": "5fe47f2b-9bcd-4741-8c18-037a4a1ac9e4",
+      "name": "No Tickets to Process",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -3344,
+        304
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 2 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Tickets": {
+      "main": [
+        [
+          {
+            "node": "Check If Tickets Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Tickets Exist": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Tickets to Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Tickets": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Process with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process with AI": {
+      "main": [
+        [
+          {
+            "node": "Merge Ticket + AI Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Ticket + AI Data": {
+      "main": [
+        [
+          {
+            "node": "Is Negative Sentiment?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait 1 Second",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Negative Sentiment?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Second": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "8ea5e458-f6c9-44d0-920c-2da51564aac0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1a1709818eaa8da476b966e6d25cabd634f64f09ae90e7e580052c2930d4974a"
+  },
+  "id": "YgWw7pFsbmgHYRtH",
+  "tags": [
+    {
+      "name": "production",
+      "id": "aLf1xn1uE24gDSsE",
+      "updatedAt": "2026-01-26T03:23:24.940Z",
+      "createdAt": "2026-01-26T03:23:24.940Z"
+    },
+    {
+      "name": "ai-automation",
+      "id": "aWzxLLWQx57i5E9W",
+      "updatedAt": "2026-01-26T03:23:24.968Z",
+      "createdAt": "2026-01-26T03:23:24.968Z"
+    }
+  ]
+}
