@@ -27,6 +27,10 @@ def validate_config():
     if not OPENAI_API_KEY:
         logger.error("OPENAI_API_KEY not found in environment variables.")
         raise RuntimeError("OPENAI_API_KEY missing.")
+    
+    # Debug logging for production (masked)
+    logger.info(f"Configuration loaded. OpenAI Key starts with: {OPENAI_API_KEY[:8]}...")
+    logger.info(f"Supabase URL: {SUPABASE_URL}")
 
 # Perform validation on import
 validate_config()
