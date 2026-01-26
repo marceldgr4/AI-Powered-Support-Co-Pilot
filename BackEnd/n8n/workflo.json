@@ -1,0 +1,163 @@
+{
+  "name": "AI Support Co-Pilot - Complete Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "tickets",
+        "returnAll": true,
+        "options": {
+          "filter": {
+            "conditions": [
+              {
+                "keyName": "processed",
+                "keyValue": "false"
+              }
+            ]
+          }
+        }
+      },
+      "id": "supabase-get-unprocessed",
+      "name": "Get Unprocessed Tickets",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "1",
+          "name": "Supabase Production"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://tu-api-railway.railway.app/process-ticket",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "ticket_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "description",
+              "value": "={{ $json.description }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "http-process-ticket",
+      "name": "Call Python API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.sentiment }}",
+              "operation": "equals",
+              "value2": "Negativo"
+            }
+          ]
+        }
+      },
+      "id": "if-negative",
+      "name": "Check if Negative",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@vivetori.com",
+        "toEmail": "support-alerts@vivetori.com",
+        "subject": "🚨 TICKET NEGATIVO DETECTADO",
+        "emailType": "html",
+        "text": "=<html>\n<body style=\"font-family: Arial, sans-serif;\">\n  <div style=\"background: #fee2e2; border-left: 4px solid #dc2626; padding: 20px; margin: 20px;\">\n    <h2 style=\"color: #dc2626;\">⚠️ Ticket Negativo Requiere Atención</h2>\n    <p><strong>ID:</strong> {{ $('Call Python API').item.json.ticket_id }}</p>\n    <p><strong>Categoría:</strong> {{ $('Call Python API').item.json.category }}</p>\n    <p><strong>Sentimiento:</strong> {{ $('Call Python API').item.json.sentiment }}</p>\n    <hr/>\n    <p><strong>Descripción:</strong></p>\n    <p>{{ $('Get Unprocessed Tickets').item.json.description }}</p>\n    <hr/>\n    <p><strong>Razonamiento IA:</strong></p>\n    <p>{{ $('Call Python API').item.json.reasoning }}</p>\n  </div>\n</body>\n</html>"
+      },
+      "id": "send-email",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [910, 200],
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "Gmail SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channelId": "C12345ABC",
+        "text": "=🚨 *Ticket Negativo Detectado*\n\n*ID:* {{ $('Call Python API').item.json.ticket_id }}\n*Categoría:* {{ $('Call Python API').item.json.category }}\n*Sentimiento:* {{ $('Call Python API').item.json.sentiment }}\n\n*Descripción:*\n{{ $('Get Unprocessed Tickets').item.json.description }}\n\n*Razonamiento:*\n{{ $('Call Python API').item.json.reasoning }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "id": "send-slack",
+      "name": "Send Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [910, 380],
+      "credentials": {
+        "slackApi": {
+          "id": "3",
+          "name": "Slack"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Get Unprocessed Tickets": {
+      "main": [
+        [
+          {
+            "node": "Call Python API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Python API": {
+      "main": [
+        [
+          {
+            "node": "Check if Negative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Negative": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
