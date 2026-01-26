@@ -98,8 +98,8 @@
     },
     {
       "parameters": {
-        "language": "pythonNative",
-        "pythonCode": "from datetime import datetime\n\n# Obtener los datos del ticket original y combinarlos con la IA\nticket_data = _$('Loop Through Tickets').item.json\n\nfor item in _items:\n    ai_data = item[\"json\"]\n    merged_data = {**ticket_data, **ai_data}\n    merged_data[\"processed_at\"] = datetime.utcnow().isoformat() + \"Z\"\n    item[\"json\"] = merged_data\n\nreturn _items"
+        "language": "javascript",
+        "jsCode": "// Obtener los datos del ticket original del nodo de bucle\nconst ticket_data = $node[\"Loop Through Tickets\"].json;\n\n// Combinar con los resultados de la IA\nreturn $input.all().map(item => {\n  return {\n    json: {\n      ...ticket_data,\n      ...item.json,\n      processed_at: new Date().toISOString()\n    }\n  };\n});"
       },
       "id": "3cb030a3-244c-49dc-9494-6a73794794d8",
       "name": "Merge Ticket + AI Data",
