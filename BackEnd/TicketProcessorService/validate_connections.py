@@ -19,10 +19,10 @@ def check_supabase():
         
         supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         supabase.table("tickets").select("*").limit(1).execute()
-        print("✅ OK")
+        print("OK")
         return True
     except Exception as e:
-        print(f"❌ Failed: {e}")
+        print(f"Failed: {e}")
         return False
 
 def check_groq():
@@ -33,10 +33,10 @@ def check_groq():
         
         client = Groq(api_key=GROQ_API_KEY)
         client.models.list()
-        print("✅ OK")
+        print("OK")
         return True
     except Exception as e:
-        print(f"❌ Failed: {e}")
+        print(f"Failed: {e}")
         return False
 
 if __name__ == "__main__":
