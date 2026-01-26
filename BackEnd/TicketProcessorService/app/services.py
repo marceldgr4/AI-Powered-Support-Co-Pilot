@@ -74,6 +74,7 @@ async def update_ticket_record(ticket_id: str, analysis: TicketAnalysis):
         update_data = {
             "category": analysis.category.value,
             "sentiment": analysis.sentiment.value,
+            "reasoning": analysis.reasoning,
             "processed": True
         }
         

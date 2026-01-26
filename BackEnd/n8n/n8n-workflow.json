@@ -82,7 +82,7 @@
         "url": "={{ \"https://ai-powered-support-co-pilot-production-522b.up.railway.app/process-ticket\" }}",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"ticket_id\": \"={{ $json.id }}\",\n  \"description\": \"={{ $json.description }}\"\n}",
+        "jsonBody": "={{ { \"ticket_id\": $json.id, \"description\": $json.description } }}",
         "options": {
           "timeout": 30000
         }

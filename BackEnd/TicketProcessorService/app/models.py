@@ -9,7 +9,7 @@ class TicketRequest(BaseModel):
 class TicketCategory(str, Enum):
     TECHNICAL = "Técnico"
     BILLING = "Facturación"
-    ACCOUNT = "Cuenta"
+    COMMERCIAL = "Comercial"
     FEATURE_REQUEST = "Solicitud de Funcionalidad"
     OTHER = "Otro"
 
