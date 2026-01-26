@@ -19,6 +19,7 @@ class TicketSentiment(str, Enum):
     NEGATIVE = "Negativo"
 
 class TicketAnalysis(BaseModel):
+    id: Optional[str] = Field(None, description="The UUID of the analyzed ticket")
     category: TicketCategory = Field(..., description="The classified category of the ticket")
     sentiment: TicketSentiment = Field(..., description="The analyzed sentiment of the ticket")
     reasoning: Optional[str] = Field(None, description="The explanation for the classification")
